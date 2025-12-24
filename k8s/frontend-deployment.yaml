@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apnaride-frontend
+  namespace: apnaride
+  labels:
+    app: apnaride-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apnaride-frontend
+  template:
+    metadata:
+      labels:
+        app: apnaride-frontend
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: frontend
+          image: apnaride-frontend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+      # ephemeral storage is provided by the node for this simple deployment
+      volumes: []

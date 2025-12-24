@@ -1,0 +1,209 @@
+pipeline {
+  agent any
+
+  environment {
+    // Docker registry (Docker Hub by default)
+    DOCKER_REGISTRY = 'docker.io'
+    DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'            // Jenkins -> Credentials
+
+    // Images (org/name, no tag)
+    BACKEND_IMAGE = 'apnaride/backend'
+    FRONTEND_IMAGE = 'apnaride/frontend'
+
+    // Tag: short git SHA preferred; falls back to build number
+    IMAGE_TAG = ''
+
+    // EC2 SSH for remote deploy (ssh-agent credentials ID)
+    SSH_CREDENTIALS_ID = 'ec2-ssh'
+    SSH_USER = 'ec2-user'
+    SSH_HOST = 'ec2-xx-xx-xx-xx.compute-1.amazonaws.com'          // change to your EC2 public DNS or IP
+
+    // Compose file to use on EC2
+    // Use docker-compose.rds.yml to connect backend to Amazon RDS (no MySQL container)
+    COMPOSE_FILE = 'docker-compose.rds.yml'
+
+    // Sensitive DB values are passed via .env on EC2
+    DB_NAME = 'apnaride'
+    DB_USERNAME = 'root'
+    DB_PASSWORD = ''                                              // set in Jenkins or inject in deploy step
+    // For RDS or external MySQL
+    DB_HOST = 'apnaride-db.cxs4me6ewjf6.ap-south-1.rds.amazonaws.com'
+    DB_PORT = '3306'
+    DB_SSL_MODE = 'REQUIRED'                                      // RDS commonly requires SSL; backend supports DB_SSL_MODE
+
+    // CORS origins for backend; include your domain or EC2 public IP
+    CORS_ORIGINS = 'http://localhost,http://YOUR_DOMAIN_OR_IP'
+
+    PATH = "/usr/local/bin:${env.PATH}"
+  }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '20'))
+    timestamps()
+    ansiColor('xterm')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+        script {
+          def sha = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+          env.IMAGE_TAG = sha ?: env.BUILD_NUMBER
+          echo "Using IMAGE_TAG=${env.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage('Build Docker Images') {
+      parallel {
+        stage('Backend Image') {
+          steps {
+            dir('Back End') {
+              sh '''
+                set -euxo pipefail
+                docker build \
+                  -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                  -t ${BACKEND_IMAGE}:latest \
+                  .
+              '''
+            }
+          }
+        }
+        stage('Frontend Image') {
+          steps {
+            dir('apnaride-frontend') {
+              sh '''
+                set -euxo pipefail
+                docker build \
+                  --build-arg VITE_API_BASE=/api \
+                  --build-arg VITE_WS_BASE=/ws \
+                  -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                  -t ${FRONTEND_IMAGE}:latest \
+                  .
+              '''
+            }
+          }
+        }
+      }
+    }
+
+    stage('Scan Images (optional)') {
+      parallel {
+        stage('Backend Scan') {
+          steps { sh 'docker scan ${BACKEND_IMAGE}:${IMAGE_TAG} || true' }
+        }
+        stage('Frontend Scan') {
+          steps { sh 'docker scan ${FRONTEND_IMAGE}:${IMAGE_TAG} || true' }
+        }
+      }
+    }
+
+    stage('Push to Registry') {
+      when { anyOf { branch 'main'; branch 'master' } }
+      steps {
+        withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh '''
+            set -euxo pipefail
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin ${DOCKER_REGISTRY}
+
+            # tag with registry namespace if DOCKER_USER provided
+            if [ -n "$DOCKER_USER" ]; then
+              docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} ${DOCKER_USER}/apnaride-backend:${IMAGE_TAG}
+              docker tag ${BACKEND_IMAGE}:latest ${DOCKER_USER}/apnaride-backend:latest
+              docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} ${DOCKER_USER}/apnaride-frontend:${IMAGE_TAG}
+              docker tag ${FRONTEND_IMAGE}:latest ${DOCKER_USER}/apnaride-frontend:latest
+
+              docker push ${DOCKER_USER}/apnaride-backend:${IMAGE_TAG}
+              docker push ${DOCKER_USER}/apnaride-backend:latest || true
+              docker push ${DOCKER_USER}/apnaride-frontend:${IMAGE_TAG}
+              docker push ${DOCKER_USER}/apnaride-frontend:latest || true
+            else
+              # Fallback: push as-is (requires images named with org)
+              docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
+              docker push ${BACKEND_IMAGE}:latest || true
+              docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
+              docker push ${FRONTEND_IMAGE}:latest || true
+            fi
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to EC2 (docker compose)') {
+      when { anyOf { branch 'main'; branch 'master' } }
+      steps {
+        sshagent (credentials: ["${SSH_CREDENTIALS_ID}"]) {
+          script {
+            // Compose the image refs that docker-compose.prod.yml expects
+            def backendRef = "${env.DOCKER_REGISTRY}/${env.BACKEND_IMAGE}:${env.IMAGE_TAG}"
+            def frontendRef = "${env.DOCKER_REGISTRY}/${env.FRONTEND_IMAGE}:${env.IMAGE_TAG}"
+
+            // If pushed under Docker Hub user namespace, adjust references
+            withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+              if (env.DOCKER_REGISTRY == 'docker.io' && env.DOCKER_USER) {
+                backendRef = "docker.io/${DOCKER_USER}/apnaride-backend:${env.IMAGE_TAG}"
+                frontendRef = "docker.io/${DOCKER_USER}/apnaride-frontend:${env.IMAGE_TAG}"
+              }
+            }
+
+            sh """
+              set -euxo pipefail
+              # Create remote working dir
+              ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} 'mkdir -p ~/apnaride && sudo mkdir -p /opt/apnaride/mysql && sudo chown 999:999 /opt/apnaride/mysql'
+
+              # Copy compose and init files
+              scp -o StrictHostKeyChecking=no ${COMPOSE_FILE} init.sql ${SSH_USER}@${SSH_HOST}:~/apnaride/
+
+              # Write .env on remote
+              ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} bash -lc '
+                cat > ~/apnaride/.env <<EOF
+DB_PASSWORD=${DB_PASSWORD}
+DB_NAME=${DB_NAME}
+DB_USERNAME=${DB_USERNAME}
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_SSL_MODE=${DB_SSL_MODE}
+DOCKER_REGISTRY=${DOCKER_REGISTRY}
+BACKEND_IMAGE=${BACKEND_IMAGE}
+FRONTEND_IMAGE=${FRONTEND_IMAGE}
+IMAGE_TAG=${IMAGE_TAG}
+CORS_ORIGINS=${CORS_ORIGINS}
+EOF
+              '
+
+              # Pull and restart
+              ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} bash -lc '
+                cd ~/apnaride && docker compose -f ${COMPOSE_FILE} pull && docker compose -f ${COMPOSE_FILE} up -d
+              '
+            """
+          }
+        }
+      }
+    }
+
+    stage('Health Check') {
+      when { anyOf { branch 'main'; branch 'master' } }
+      steps {
+        sshagent (credentials: ["${SSH_CREDENTIALS_ID}"]) {
+          sh '''
+            set -euxo pipefail
+            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} 'curl -fsS http://localhost:9031/actuator/health && curl -fsS http://localhost:80 >/dev/null'
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      cleanWs()
+    }
+    success {
+      echo "Deployment successful: ${env.IMAGE_TAG}"
+    }
+    failure {
+      echo "Pipeline failed"
+    }
+  }
+}

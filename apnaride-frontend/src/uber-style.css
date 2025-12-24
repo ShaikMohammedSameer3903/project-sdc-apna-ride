@@ -1,0 +1,971 @@
+/* Uber-Style Design System */
+
+:root {
+    --uber-black: #000000;
+    --uber-white: #FFFFFF;
+    --uber-green: #00C853;
+    --uber-gray: #F5F5F5;
+    --uber-dark-gray: #333333;
+    --uber-light-gray: #EEEEEE;
+    --uber-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --uber-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --uber-shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Driver Marker Pulse */
+.driver-pulse {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.driver-pulse::before {
+    content: '';
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 215, 0, 0.25);
+    animation: driverPulse 1.8s infinite ease-out;
+}
+@keyframes driverPulse {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    70% { transform: scale(1.3); opacity: 0.2; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ETA ticker */
+.eta-ticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #F0F7FF;
+    color: #0B63CE;
+    font-weight: 600;
+    font-size: 13px;
+}
+.eta-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #0B63CE;
+}
+
+/* Full Screen Map Layout */
+.uber-map-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.uber-map-container .leaflet-container {
+    height: 100vh;
+    height: 100svh;
+    width: 100vw;
+}
+
+/* Floating Header */
+.uber-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--uber-white);
+    box-shadow: var(--uber-shadow);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.uber-header-transparent {
+    background: transparent;
+    box-shadow: none;
+}
+
+.uber-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--uber-black);
+    animation: subtlePulse 6s ease-in-out infinite;
+}
+
+.uber-header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Floating Search Bar */
+.uber-search-bar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    background: var(--uber-white);
+    border-radius: 50px;
+    padding: 12px 24px;
+    box-shadow: var(--uber-shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 400px;
+    max-width: 600px;
+    width: 90%;
+}
+
+.uber-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+}
+
+/* Bottom Sheet */
+.uber-bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--uber-white);
+    border-radius: 24px 24px 0 0;
+    box-shadow: var(--uber-shadow-xl);
+    z-index: 1002;
+    padding: 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    max-height: 70vh;
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.uber-bottom-sheet.hidden {
+    transform: translateY(100%);
+}
+
+/* Collapsed/minimized state for desktop usability */
+.uber-bottom-sheet.collapsed {
+    max-height: 56px;
+    overflow: hidden;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    cursor: pointer;
+}
+
+.uber-bottom-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--uber-light-gray);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+}
+
+/* Floating Card */
+.uber-floating-card {
+    position: fixed;
+    background: var(--uber-white);
+    border-radius: 16px;
+    box-shadow: var(--uber-shadow-lg);
+    z-index: 1001;
+    padding: 20px;
+}
+
+.uber-floating-card-left {
+    left: 20px;
+    top: 80px;
+    max-width: 400px;
+}
+
+.uber-floating-card-right {
+    right: 20px;
+    top: 80px;
+    max-width: 400px;
+}
+
+/* Buttons */
+.uber-btn {
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.uber-btn-primary {
+    background: var(--uber-black);
+    color: var(--uber-white);
+}
+
+.uber-btn-primary:hover {
+    background: var(--uber-dark-gray);
+    transform: translateY(-1px);
+    box-shadow: var(--uber-shadow);
+}
+
+.uber-btn-success {
+    background: var(--uber-green);
+    color: var(--uber-white);
+}
+
+.uber-btn-success:hover {
+    background: #00B048;
+    transform: translateY(-1px);
+    box-shadow: var(--uber-shadow);
+}
+
+.uber-btn-outline {
+    background: transparent;
+    color: var(--uber-black);
+    border: 2px solid var(--uber-black);
+}
+
+.uber-btn-outline:hover {
+    background: var(--uber-black);
+    color: var(--uber-white);
+}
+
+.uber-btn-ghost {
+    background: transparent;
+    color: var(--uber-black);
+    padding: 8px 16px;
+}
+
+.uber-btn-ghost:hover {
+    background: var(--uber-gray);
+}
+
+.uber-btn-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--uber-white);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--uber-shadow);
+    transition: all 0.2s;
+}
+
+.uber-btn-icon:hover {
+    transform: scale(1.05);
+    box-shadow: var(--uber-shadow-lg);
+}
+
+.uber-btn-icon-lg {
+    width: 56px;
+    height: 56px;
+}
+
+/* Vehicle Cards */
+.uber-vehicle-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border: 2px solid var(--uber-light-gray);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+}
+
+.uber-vehicle-card:hover {
+    border-color: var(--uber-black);
+    transform: translateX(4px);
+}
+
+.uber-vehicle-card.selected {
+    border-color: var(--uber-black);
+    background: var(--uber-gray);
+}
+
+.uber-vehicle-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.uber-vehicle-icon {
+    font-size: 32px;
+    width: 48px;
+    text-align: center;
+}
+
+.uber-vehicle-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.uber-vehicle-eta {
+    font-size: 14px;
+    color: #666;
+    margin: 4px 0 0 0;
+}
+
+.uber-vehicle-price {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Input Fields */
+.uber-input-group {
+    margin-bottom: 16px;
+}
+
+.uber-input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--uber-light-gray);
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.uber-input:focus {
+    border-color: var(--uber-black);
+}
+
+.uber-input-icon {
+    position: relative;
+}
+
+.uber-input-icon input {
+    padding-left: 48px;
+}
+
+.uber-input-icon i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+/* Location Input */
+.uber-location-input {
+    background: var(--uber-white);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: var(--uber-shadow);
+}
+
+.uber-location-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.uber-location-item:hover {
+    background: var(--uber-gray);
+}
+
+.uber-location-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.uber-location-dot-pickup {
+    background: var(--uber-black);
+}
+
+.uber-location-dot-drop {
+    background: var(--uber-green);
+}
+
+.uber-location-line {
+    width: 2px;
+    height: 24px;
+    background: var(--uber-light-gray);
+    margin-left: 5px;
+}
+
+/* Earnings Display */
+.uber-earnings-card {
+    background: linear-gradient(135deg, var(--uber-green) 0%, #00A040 100%);
+    color: var(--uber-white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--uber-shadow-lg);
+}
+
+.uber-earnings-amount {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.uber-earnings-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Status Badge */
+.uber-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.uber-status-online {
+    background: #E8F5E9;
+    color: var(--uber-green);
+}
+
+.uber-status-offline {
+    background: #FFEBEE;
+    color: #D32F2F;
+}
+
+.uber-status-busy {
+    background: #FFF3E0;
+    color: #F57C00;
+}
+
+/* Ride Request Card */
+.uber-ride-request {
+    background: var(--uber-white);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--uber-shadow-lg);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.uber-ride-request-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.uber-ride-request-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.uber-ride-request-pulse {
+    width: 48px;
+    height: 48px;
+    background: var(--uber-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--uber-white);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Route Display */
+.uber-route {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.uber-route-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.uber-route-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.uber-route-connector {
+    width: 2px;
+    flex: 1;
+    background: var(--uber-light-gray);
+    min-height: 40px;
+}
+
+.uber-route-info {
+    flex: 1;
+}
+
+.uber-route-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.uber-route-address {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Stats Grid */
+.uber-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.uber-stat-card {
+    background: var(--uber-gray);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+
+.uber-stat-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.uber-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 4px 0;
+}
+
+.uber-stat-label {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Chat Widget */
+.uber-chat-widget {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: 20px;
+    z-index: 1003;
+}
+
+.uber-chat-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--uber-black);
+    color: var(--uber-white);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--uber-shadow-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.2s;
+}
+
+.uber-chat-button:hover {
+    transform: scale(1.1);
+}
+
+.uber-chat-window {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 350px;
+    height: 500px;
+    background: var(--uber-white);
+    border-radius: 16px;
+    box-shadow: var(--uber-shadow-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.uber-chat-header {
+    background: var(--uber-black);
+    color: var(--uber-white);
+    padding: 16px;
+    font-weight: 600;
+}
+
+.uber-chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.uber-chat-input {
+    border-top: 1px solid var(--uber-light-gray);
+    padding: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+/* SOS Button */
+.uber-sos-button {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    left: 20px;
+    z-index: 1003;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #D32F2F;
+    color: var(--uber-white);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--uber-shadow-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    animation: sosGlow 2s infinite;
+}
+
+@keyframes sosGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(211, 47, 47, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(211, 47, 47, 0.8);
+    }
+}
+
+/* Profile Menu */
+.uber-profile-menu {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: var(--uber-white);
+    border-radius: 12px;
+    box-shadow: var(--uber-shadow-lg);
+    z-index: 1001;
+    min-width: 250px;
+    overflow: hidden;
+}
+
+.uber-profile-menu-item {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--uber-light-gray);
+}
+
+.uber-profile-menu-item:last-child {
+    border-bottom: none;
+}
+
+.uber-profile-menu-item:hover {
+    background: var(--uber-gray);
+}
+
+.uber-profile-menu-icon {
+    width: 24px;
+    text-align: center;
+}
+
+/* Loading Spinner */
+.uber-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--uber-black);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+/* Mobile chat full-width bottom sheet */
+@media (max-width: 480px) {
+    .uber-chat-widget {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-height: 65vh !important;
+        border-radius: 20px 20px 0 0 !important;
+        z-index: 9999 !important;
+    }
+    
+    .uber-chat-window {
+        height: 65vh !important;
+        max-height: 65vh !important;
+    }
+    
+    .uber-floating-card-left {
+        left: 0 !important;
+        right: 0 !important;
+        width: calc(100% - 32px) !important;
+        margin: 0 16px !important;
+        max-width: none !important;
+    }
+    
+    /* Compact ride summary on mobile */
+    .uber-ride-request {
+        padding: 16px !important;
+    }
+    
+    .uber-ride-request-title {
+        font-size: 18px !important;
+    }
+    
+    /* Hide non-critical actions on mobile */
+    .uber-ride-actions-secondary {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .uber-search-bar {
+        min-width: auto;
+        width: calc(100% - 40px);
+    }
+
+    .uber-floating-card-left,
+    .uber-floating-card-right {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+
+    .uber-bottom-sheet {
+        max-height: 80vh;
+    }
+
+    .uber-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .uber-chat-window {
+        width: calc(100vw - 40px);
+        height: 60vh;
+        left: 20px;
+        right: 20px;
+    }
+
+    .uber-header {
+        height: 56px;
+        padding: 0 12px;
+    }
+
+    .uber-btn {
+        padding: 12px 16px;
+        font-size: 15px;
+    }
+
+    .uber-btn-icon,
+    .uber-btn-icon-lg {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+@media (max-width: 480px) {
+    .uber-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .uber-search-bar {
+        top: 12px;
+        padding: 10px 16px;
+    }
+
+    .uber-vehicle-icon {
+        font-size: 28px;
+        width: 40px;
+    }
+
+    .uber-ride-request-title {
+        font-size: 18px;
+    }
+
+    .uber-chat-button {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+}
+
+/* Smooth Animations */
+.uber-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.uber-slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+.uber-slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Subtle logo animation for a unique, animated brand feel */
+@keyframes subtlePulse {
+    0% { text-shadow: 0 0 0 rgba(0,0,0,0); }
+    50% { text-shadow: 0 1px 8px rgba(0,0,0,0.12); }
+    100% { text-shadow: 0 0 0 rgba(0,0,0,0); }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .uber-logo {
+        animation: none !important;
+    }
+}
+
+/* Saved Places */
+.uber-saved-places {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.uber-saved-place {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid var(--uber-light-gray);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.uber-saved-place:hover {
+    border-color: var(--uber-black);
+    background: var(--uber-gray);
+}
+
+.uber-saved-place-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.uber-saved-place-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Promo Code */
+.uber-promo-input {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.uber-promo-input input {
+    flex: 1;
+}
+
+/* Rating Stars */
+.uber-rating {
+    display: flex;
+    gap: 4px;
+}
+
+.uber-star {
+    color: #FFD700;
+    font-size: 18px;
+}
+
+/* Notification Badge */
+.uber-notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #D32F2F;
+    color: var(--uber-white);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Heat Map Overlay */
+.uber-heat-indicator {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 87, 34, 0.6) 0%, rgba(255, 87, 34, 0) 70%);
+    pointer-events: none;
+}

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apnaride-postgres
+  namespace: apnaride
+  labels:
+    app: apnaride-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apnaride-postgres
+  template:
+    metadata:
+      labels:
+        app: apnaride-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: apnaride
+            - name: POSTGRES_USER
+              value: apnaride
+            - name: POSTGRES_PASSWORD
+              value: apnaride
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apnaride-postgres
+  namespace: apnaride
+spec:
+  selector:
+    app: apnaride-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP

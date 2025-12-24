@@ -1,0 +1,16 @@
+{
+  "name": "smoke-tests",
+  "version": "1.0.0",
+  "description": "Simple Node-based smoke test to exercise booking -> accept -> verify-otp -> start flows against your API.",
+  "main": "smoke-test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "minimist": "^1.2.8",
+    "node-fetch": "^2.7.0"
+  }
+}

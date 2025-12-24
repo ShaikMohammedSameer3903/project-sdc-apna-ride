@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Display Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #F5F5F5;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .driver-details {
+            flex: 1;
+        }
+        .driver-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .rating {
+            color: #FFD700;
+            margin-bottom: 4px;
+        }
+        .vehicle-info {
+            font-size: 14px;
+            color: #666;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .otp-card {
+            background: #000;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            min-width: 100px;
+        }
+        .otp-label {
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .otp-code {
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #000;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .otp-helper {
+            color: #fff;
+            font-size: 9px;
+            opacity: 0.7;
+            text-align: center;
+            margin-top: 2px;
+        }
+        .chat-btn {
+            background: #000;
+            color: #fff;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .chat-btn:hover {
+            background: #333;
+        }
+        .test-controls {
+            margin-top: 20px;
+            padding: 16px;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+        .test-controls h3 {
+            margin-top: 0;
+            font-size: 14px;
+        }
+        .test-controls button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .test-controls button:hover {
+            background: #1976D2;
+        }
+        .status {
+            margin-top: 12px;
+            padding: 8px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Driver on the way!</h1>
+        
+        <div class="driver-info">
+            <div class="avatar">J</div>
+            <div class="driver-details">
+                <div class="driver-name">Jai</div>
+                <div class="rating">⭐⭐⭐⭐⭐ 4.9</div>
+                <div class="vehicle-info">DL 87 BC 8957 • Auto</div>
+            </div>
+            <div class="actions">
+                <div class="otp-card" id="otpCard">
+                    <div class="otp-label">Share OTP</div>
+                    <div class="otp-code" id="otpCode">1234</div>
+                    <div class="otp-helper">Driver needs this to start</div>
+                </div>
+                <button class="chat-btn" onclick="alert('Chat opened!')">
+                    <i class="fa-solid fa-comment"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="test-controls">
+            <h3>🧪 Test Controls</h3>
+            <button onclick="generateOTP()">Generate New OTP</button>
+            <button onclick="hideOTP()">Hide OTP</button>
+            <button onclick="showOTP()">Show OTP</button>
+            <button onclick="copyOTP()">Copy OTP</button>
+            <div class="status" id="status">
+                Current OTP: <span id="currentOTP">1234</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOTP = '1234';
+
+        function generateOTP() {
+            currentOTP = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+            document.getElementById('otpCode').textContent = currentOTP;
+            document.getElementById('currentOTP').textContent = currentOTP;
+            console.log('Generated OTP:', currentOTP);
+        }
+
+        function hideOTP() {
+            document.getElementById('otpCard').style.display = 'none';
+            console.log('OTP hidden');
+        }
+
+        function showOTP() {
+            document.getElementById('otpCard').style.display = 'flex';
+            console.log('OTP shown');
+        }
+
+        function copyOTP() {
+            navigator.clipboard.writeText(currentOTP);
+            alert('OTP copied: ' + currentOTP);
+            console.log('OTP copied:', currentOTP);
+        }
+
+        // Simulate WebSocket update
+        function simulateRideAccepted() {
+            const update = {
+                type: 'RIDE_ACCEPTED',
+                ride: {
+                    otp: currentOTP,
+                    driverName: 'Jai',
+                    vehicleNumber: 'DL 87 BC 8957',
+                    vehicleType: 'Auto',
+                    status: 'ACCEPTED'
+                }
+            };
+            console.log('Simulated ride update:', update);
+            return update;
+        }
+
+        console.log('OTP Display Test loaded');
+        console.log('Current OTP:', currentOTP);
+        console.log('Try the test controls to simulate different scenarios');
+    </script>
+</body>
+</html>

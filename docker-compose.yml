@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: "./Back End"
+      dockerfile: Dockerfile
+    container_name: apnaride-backend
+    environment:
+      SERVER_PORT: 9031
+      DB_HOST: host.docker.internal
+      DB_PORT: 3306
+      DB_NAME: apnaride
+      DB_USERNAME: root
+      DB_PASSWORD: shaik
+      JPA_DDL_AUTO: update
+      JPA_SHOW_SQL: "true"
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "9031:9031"
+
+  frontend:
+    build:
+      context: "./apnaride-frontend"
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: /api
+        VITE_WS_BASE: /ws
+    container_name: apnaride-frontend
+    ports:
+      - "5173:80"

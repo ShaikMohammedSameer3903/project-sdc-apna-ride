@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.git
+.gitignore
+*.log
+*.tmp
+.env
+.env.example
+README.md
+*.md
+.idea/
+.vscode/
+.DS_Store
+coverage/
+.cache/

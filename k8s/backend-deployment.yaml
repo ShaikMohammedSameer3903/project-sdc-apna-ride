@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apnaride-backend
+  namespace: apnaride
+  labels:
+    app: apnaride-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apnaride-backend
+  template:
+    metadata:
+      labels:
+        app: apnaride-backend
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: backend
+          image: apnaride-backend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9031
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9031
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9031
+            initialDelaySeconds: 20
+            periodSeconds: 20
